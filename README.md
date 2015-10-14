@@ -11,5 +11,5 @@ Requires the [ofxAnimateable](https://github.com/armadillu/ofxAnimatable) addon.
 
 ![](https://github.com/streiten/sfpc-rtp-whitney/blob/master/doc/sample2.gif?raw=true)
 
-![](https://github.com/streiten/sfpc-rtp-whitney/blob/master/doc/sample1.gif?raw=true)
+![](https://github.com/streiten/sfpc-rtp-whitney/blob/master/doc/sample.gif?raw=true)
 
