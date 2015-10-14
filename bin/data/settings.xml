@@ -1,0 +1,18 @@
+<Parameters>
+	<Group_1>
+		<Show_Hide>1</Show_Hide>
+		<Amplitude>215.816</Amplitude>
+		<Frequency>1</Frequency>
+		<Density>50</Density>
+		<Animation_Speed>960</Animation_Speed>
+		<Image_scale>1</Image_scale>
+	</Group_1>
+	<Group_2>
+		<Show_Hide>1</Show_Hide>
+		<Amplitude>89.7959</Amplitude>
+		<Density>125</Density>
+		<Animation_Speed>960</Animation_Speed>
+		<Image_scale>1</Image_scale>
+	</Group_2>
+<Parameters/>
+</Parameters>
