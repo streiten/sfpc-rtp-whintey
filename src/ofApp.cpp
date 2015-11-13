@@ -3,18 +3,15 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     ofSetVerticalSync(true);
-
-    ofSetFrameRate(60);
+    ofSetFrameRate(30);
     ofBackground(0);
     ofEnableSmoothing();
     
-    bckgImg.loadImage("back.png");
+    bckgImg.loadImage("back_rotate.png");
     triImg.loadImage("tri.png");
     eyesImg.loadImage("1f440.png");
 
     ofApp::initControls();
-    
-    center.set(ofGetWidth()*0.5f, ofGetHeight()*0.5f, 0);
     
     anim[0].reset( 0.0f );
     anim[0].setRepeatType(LOOP);
@@ -25,6 +22,16 @@ void ofApp::setup(){
     anim[1].setRepeatType(LOOP);
     anim[1].setCurve(LINEAR);
     anim[1].animateTo( TWO_PI );
+    
+    rgbaFbo.allocate(1080, 1920, GL_RGBA);
+    rgbaFbo.begin();
+        ofClear(255,255,255, 0);
+    rgbaFbo.end();
+    
+    center.set(rgbaFbo.getWidth()*0.5f, rgbaFbo.getHeight()*0.5f, 0);
+    
+    recLoopDone = false;
+    lastPhase = 0;
     
 }
 
@@ -37,12 +44,16 @@ void ofApp::update(){
     anim[0].update( 1.0f/pAnimSpeed[0] );
     anim[1].update( 1.0f/pAnimSpeed[1] );
 
-
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
+    float seq;
+    
+    rgbaFbo.begin();
+    
+    ofClear(0);
     bckgImg.draw(0, 0);
     
     ofPushMatrix();
@@ -55,12 +66,32 @@ void ofApp::draw(){
     }
     
     if(pShow[1]) {
-        drawLissaous();
+        seq = floor(drawLissaous() * 1000);
     }
     ofPopMatrix();
     
+    
+    rgbaFbo.end();
+    rgbaFbo.draw(0,0, ofGetWidth(), ofGetHeight());
+    
+    if(pRec && !recLoopDone) {
+        ofPixels p;
+        rgbaFbo.readToPixels(p);
+        ofSaveImage(p, "./capture/" + ofToString(seq) + ofGetTimestampString() + ".png");
+        if(seq < lastPhase) {
+            recLoopDone = true;
+        }
+        lastPhase = seq;
+    }
+    
     gui.draw();
     
+}
+
+void ofApp::saveFrame(){
+    ofPixels p;
+    rgbaFbo.readToPixels(p);
+    ofSaveImage(p, "./capture/" + ofGetTimestampString() + ".jpg");
 }
 
 void ofApp::initControls(){
@@ -88,6 +119,8 @@ void ofApp::initControls(){
     paramsGroup2.add(plissajouRatio[1].set("Lissajous Radio Y", 3, 1, 8));
     paramsGroup2.add(pImgScale[1].set("Image scale", 1, 1, 50));
     // paramsGroup2.add(pJitterScale[1].set("Jitter scale", true));
+    
+    paramsGroup2.add(pRec.set( "Record", false ));
 
     gui.add(paramsGroup1);
     gui.add(paramsGroup2);
@@ -106,19 +139,19 @@ void ofApp::drawWave() {
         y = this->pAmp[0] * sin( t * i + phase );
         y2 = this->pAmp[0] * sin( t * i + phase + PI);
 
-        x = i * ofGetWidth() / this->pDensity[0];
-        ofCircle( x - ofGetWidth()/2 ,y,1);
-        ofCircle( x - ofGetWidth()/2 ,y2,1);
+        x = i * rgbaFbo.getWidth() / this->pDensity[0];
+        //ofCircle( x - rgbaFbo.getWidth()/2 ,y,1);
+        //ofCircle( x - rgbaFbo.getWidth()/2 ,y2,1);
         
         iconWidth = triImg.width * this->imgScales[0];
         iconHeight = triImg.height * this->imgScales[0];
-        triImg.draw(x-iconWidth/2-ofGetWidth()/2, y-iconHeight/2, iconWidth, iconHeight);
-        triImg.draw(x-iconWidth/2-ofGetWidth()/2, y2-iconHeight/2, iconWidth, iconHeight);
+        triImg.draw(x-iconWidth/2-rgbaFbo.getWidth()/2, y-iconHeight/2, iconWidth, iconHeight);
+        triImg.draw(x-iconWidth/2-rgbaFbo.getWidth()/2, y2-iconHeight/2, iconWidth, iconHeight);
 
     }
 }
 
-void ofApp::drawLissaous() {
+float ofApp::drawLissaous() {
     
     double y,x;
     float phase,v,iconHeight,iconWidth;
@@ -143,6 +176,8 @@ void ofApp::drawLissaous() {
         ofCircle(x,y,1);
         
     }
+    
+    return phase;
 }
 
 
@@ -153,7 +188,7 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-
+    
 }
 
 //--------------------------------------------------------------

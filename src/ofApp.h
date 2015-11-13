@@ -15,7 +15,7 @@ class ofApp : public ofBaseApp{
         void initControls();
         ofPoint calcPoint(float amp, float angle, float phase);
         void drawWave();
-        void drawLissaous();
+        float drawLissaous();
     
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -48,7 +48,13 @@ class ofApp : public ofBaseApp{
         ofParameter<string> pparam2;
         ofParameter<string> pparam3;
     
-        // ofxSVG svg;
+        //8 bits red, 8 bits green, 8 bits blue, from 0 to 255 in 256 steps
+        ofFbo rgbaFbo; // with alpha
+    
+        ofParameter<bool> pRec;
+        bool recLoopDone;
+        float lastPhase;
+        void saveFrame();
     
         ofImage bckgImg, triImg, eyesImg;
         float imgScales[2];
